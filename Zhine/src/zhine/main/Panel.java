@@ -2,8 +2,15 @@ package zhine.main;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 
+import zhine.gfx.Camera;
+import zhine.gfx.Screen;
 import zhine.gfx.Window;
 import zhine.util.Console;
 
@@ -13,11 +20,14 @@ public class Panel implements Runnable {
 	public static final String VERSION = "0.01";
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 720;
+	public static boolean USE_GPU = true;
 
 	private Thread m_thread;
 	private boolean m_running;
 
 	public Window m_window;
+	public Screen m_screen;
+	public Camera m_camera;
 
 	public Panel() {
 		
@@ -28,6 +38,8 @@ public class Panel implements Runnable {
 	private void init() {
 
 		Console.log("Initializing game...");
+		m_screen = new Screen(WIDTH, HEIGHT);
+		m_camera = new Camera();
 	}
 
 	private void tick() {
@@ -42,10 +54,42 @@ public class Panel implements Runnable {
 			m_window.createBufferStrategy(3);
 			return;
 		}
+		
+		VolatileImage vBuffer = null;
+		BufferedImage buffer = null;
+		Graphics2D bgfx = null;
+
+		if (vBuffer == null && USE_GPU) {
+			
+			vBuffer = m_window.createVolatileImage(WIDTH, HEIGHT);
+			bgfx = vBuffer.createGraphics();
+			bgfx.setBackground(Color.BLACK);
+			bgfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+			m_screen.refresh(bgfx);
+		} else if (buffer == null && !USE_GPU) {
+			
+			buffer = new BufferedImage(WIDTH, HEIGHT, 2);
+			bgfx = buffer.createGraphics();
+			bgfx.setBackground(Color.BLACK);
+			bgfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+			m_screen.refresh(bgfx);
+		}
 
 		Graphics g = bs.getDrawGraphics();
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, m_window.getWidth(), m_window.getHeight());
+		
+		// RENDER HERE
+		
+		m_screen.dispose();
+		if (USE_GPU) {
+			m_camera.render(vBuffer, g, m_window.getWidth(), m_window.getHeight());
+			vBuffer.flush();
+		} else {
+			m_camera.render(buffer, g, m_window.getWidth(), m_window.getHeight());
+			buffer.flush();
+		}
+		Toolkit.getDefaultToolkit().sync();
 		
 		g.dispose();
 		bs.show();
