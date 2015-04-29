@@ -4,7 +4,7 @@ public class Console {
 	
 	public static void log(Object o) {
 		
-		log(o);
+		log(LogType.INFO, o);
 	}
 	
 	public static void log(LogType type, Object o) {
