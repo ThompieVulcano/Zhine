@@ -1,6 +1,7 @@
 package zhine.main;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -10,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 
 import zhine.gfx.Camera;
+import zhine.gfx.GameColor;
 import zhine.gfx.Screen;
 import zhine.gfx.Window;
 import zhine.util.Console;
@@ -38,6 +40,7 @@ public class Panel implements Runnable {
 	private void init() {
 
 		Console.log("Initializing game...");
+		
 		m_screen = new Screen(WIDTH, HEIGHT);
 		m_camera = new Camera();
 	}
@@ -79,7 +82,11 @@ public class Panel implements Runnable {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, m_window.getWidth(), m_window.getHeight());
 		
-		// RENDER HERE
+		m_screen.setBackground(GameColor.DARK_GRAY);
+		Font font = new Font("Verdana", Font.PLAIN, 80);
+		m_screen.setFont(font);
+		m_screen.setColor(GameColor.WHITE);
+		m_screen.drawCenteredString("Zhine", Panel.WIDTH / 2, 100);
 		
 		m_screen.dispose();
 		if (USE_GPU) {
