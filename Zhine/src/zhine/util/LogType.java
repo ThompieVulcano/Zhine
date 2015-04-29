@@ -1,4 +1,7 @@
 package zhine.util;
 
-public class LogType {
+public enum LogType {
+	
+	INFO, WARNING, SEVERE, DEBUG
+	;
 }
