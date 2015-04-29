@@ -4,18 +4,26 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 
+import zhine.input.Input;
 import zhine.main.Panel;
 
 public class Camera {
-	
+
+	private Input m_input;
 	private double m_zoom;
 
-	public Camera() {
-		
+	public Camera(Input input) {
+
+		m_input = input;
 		m_zoom = 1;
 	}
 
 	public void tick() {
+		
+		if (m_input.KEY_ESC.isPressed()) {
+
+			System.exit(1);
+		}
 	}
 
 	public void render(VolatileImage image, Graphics g, int windowWidth, int windowHeight) {
