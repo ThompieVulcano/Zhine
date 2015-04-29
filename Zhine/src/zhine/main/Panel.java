@@ -1,7 +1,6 @@
 package zhine.main;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -11,24 +10,27 @@ import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 
 import zhine.gfx.Camera;
-import zhine.gfx.GameColor;
 import zhine.gfx.Screen;
 import zhine.gfx.Window;
+import zhine.input.Input;
 import zhine.util.Console;
 
 public class Panel implements Runnable {
 
-	public static final String NAME = "Zhine";
+	public static final String NAME = "The Hollow";
 	public static final String VERSION = "0.01";
-	public static final int WIDTH = 1280;
-	public static final int HEIGHT = 720;
+	public static final int WIDTH = 1920;
+	public static final int HEIGHT = 1080;
 	public static boolean USE_GPU = true;
 
 	private Thread m_thread;
 	private boolean m_running;
 
+	public Input m_input;
+
 	public Window m_window;
 	public Screen m_screen;
+	public Screen m_guiScreen;
 	public Camera m_camera;
 
 	public Panel() {
@@ -42,10 +44,15 @@ public class Panel implements Runnable {
 		Console.log("Initializing game...");
 		
 		m_screen = new Screen(WIDTH, HEIGHT);
-		m_camera = new Camera();
+		m_guiScreen = new Screen(WIDTH, HEIGHT);
+		m_input = new Input(m_window);
+		m_camera = new Camera(m_input);
+		m_input.initMouse(m_camera, m_screen);
 	}
 
 	private void tick() {
+		
+		m_camera.tick();
 	}
 
 	private void render() {
@@ -81,12 +88,7 @@ public class Panel implements Runnable {
 		Graphics g = bs.getDrawGraphics();
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, m_window.getWidth(), m_window.getHeight());
-		
-		m_screen.setBackground(GameColor.DARK_GRAY);
-		Font font = new Font("Verdana", Font.PLAIN, 80);
-		m_screen.setFont(font);
-		m_screen.setColor(GameColor.WHITE);
-		m_screen.drawCenteredString("Zhine", Panel.WIDTH / 2, 100);
+		m_guiScreen.refresh(g);
 		
 		m_screen.dispose();
 		if (USE_GPU) {
